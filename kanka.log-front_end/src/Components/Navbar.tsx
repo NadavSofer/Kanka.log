@@ -54,12 +54,12 @@ function Navbar() {
                 </div>
 
                 <div className="flex ">
-                    <a href="#"
+                    <Link to="/Signup"
                         className="block text-md px-4 py-4 text-blue-500 ml-2 font-bold hover:text-white hover:bg-blue-500 lg:mt-0">Sign
-                        in</a>
+                        in</Link>
 
-                    <a href="#"
-                        className=" block text-md px-4  ml-2 py-4 text-blue-500 font-bold hover:text-white hover:bg-blue-500 lg:mt-0">login</a>
+                    <Link to="/Login"
+                        className=" block text-md px-4  ml-2 py-4 text-blue-500 font-bold hover:text-white hover:bg-blue-500 lg:mt-0">login</Link>
                 </div>
             </div>
 
