@@ -11,6 +11,9 @@ export const rootReducer = (state= initState, action={}) => {
     switch (action.type) {
         case 'setCampaigns':
             return {...state, campaigns: action.payload}
+        
+        case 'setEntities':
+            return {...state, entities: action.payload}
         default:
             return {...state};
     }

@@ -4,3 +4,10 @@ export const setCampaigns = (arr:[]) => {
         payload: arr
     }
 }
+
+export const setEntities = (arr:[]) => {
+    return {
+        type: 'setEntities',
+        payload: arr
+    }
+}
