@@ -33,15 +33,21 @@ function Entity() {
             })
     }
 
+    function cleanHtml(html:string) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        return doc.body.textContent || '';
+    }
+
     const divStyle: React.CSSProperties = {
         backgroundImage: `url(${(entity as any).image_full})`,
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center',
     };
-    
+
     console.log(entity);
-    
+
 
     return (
         <div>
@@ -53,15 +59,19 @@ function Entity() {
                             <div className="image overflow-hidden h-48">
                                 <img className="h-auto w-full mx-auto"
                                     src="https://lavinephotography.com.au/wp-content/uploads/2017/01/PROFILE-Photography-112.jpg"
-                                    alt=""/>
+                                    alt="" />
                             </div>
-                            <h1 className="text-white font-bold text-xl leading-8 my-1 px-4 py-1" style={{background:'00000050'}}>{(entity as any).name}</h1>
+                            <h1 className="text-white font-bold text-xl leading-8 my-1 px-4 py-1 rounded bg-black bg-opacity-50"
+                                style={{ background: '00000050' }}>{(entity as any).name}</h1>
                             <ul
                                 className="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-xl">
                                 <li className="flex items-center py-3">
                                     <span>Status</span>
-                                    <span className="ml-auto"><span
-                                        className=" py-1 px-2 rounded text-sm">{!(entity as any).is_dead ? 'Alive' : 'Dead'}</span></span>
+                                    <span className="ml-auto">
+                                        <span
+                                            className=" py-1 px-2 rounded text-sm">{!(entity as any).is_dead ? 'Alive' : 'Dead'}
+                                        </span>
+                                    </span>
                                 </li>
                             </ul>
                         </div>
@@ -72,51 +82,12 @@ function Entity() {
 
                         <div className="bg-white p-3 shadow-xl rounded-sm">
                             <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
-                                <span className="text-blue-500">
-                                    <svg className="h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
-                                </span>
-                                <span className="tracking-wide">About</span>
+                                <span className="tracking-wide text-xl">About</span>
                             </div>
                             <div className="text-gray-700">
-                                <div className="grid md:grid-cols-2 text-sm">
-                                    <div className="grid grid-cols-2">
-                                        <div className="px-4 py-2 font-semibold">First Name</div>
-                                        <div className="px-4 py-2">Jane</div>
-                                    </div>
-                                    <div className="grid grid-cols-2">
-                                        <div className="px-4 py-2 font-semibold">Last Name</div>
-                                        <div className="px-4 py-2">Doe</div>
-                                    </div>
-                                    <div className="grid grid-cols-2">
-                                        <div className="px-4 py-2 font-semibold">Gender</div>
-                                        <div className="px-4 py-2">Female</div>
-                                    </div>
-                                    <div className="grid grid-cols-2">
-                                        <div className="px-4 py-2 font-semibold">Contact No.</div>
-                                        <div className="px-4 py-2">+11 998001001</div>
-                                    </div>
-                                    <div className="grid grid-cols-2">
-                                        <div className="px-4 py-2 font-semibold">Current Address</div>
-                                        <div className="px-4 py-2">Beech Creek, PA, Pennsylvania</div>
-                                    </div>
-                                    <div className="grid grid-cols-2">
-                                        <div className="px-4 py-2 font-semibold">Permanant Address</div>
-                                        <div className="px-4 py-2">Arlington Heights, IL, Illinois</div>
-                                    </div>
-                                    <div className="grid grid-cols-2">
-                                        <div className="px-4 py-2 font-semibold">Email.</div>
-                                        <div className="px-4 py-2">
-                                            <a className="text-blue-800" href="mailto:jane@example.com">jane@example.com</a>
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-2">
-                                        <div className="px-4 py-2 font-semibold">Birthday</div>
-                                        <div className="px-4 py-2">Feb 06, 1998</div>
-                                    </div>
+                                <div className="grid md:grid-cols-1 text-sm">
+                                    <textarea id="message" rows={4} className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" value={cleanHtml((entity as any).entry)} placeholder="Write something about the entity">
+                                    </textarea>
                                 </div>
                             </div>
                         </div>
