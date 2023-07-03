@@ -11,3 +11,10 @@ export const setEntities = (arr:[]) => {
         payload: arr
     }
 }
+
+export const setCurrentEntity = (id:string) => {
+    return {
+        type: 'setCurrentEntity',
+        payload: id
+    }
+}

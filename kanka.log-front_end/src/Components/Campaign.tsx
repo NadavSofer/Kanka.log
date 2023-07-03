@@ -18,7 +18,7 @@ function Campaign() {
                         <div className="w-80 bg-white shadow-md rounded-xl duration-500 hover:scale-105 hover:shadow-xl">
                             <Link to={`/${campaignId}/${(item as string)}`}>
                                 <img src=''
-                                    alt="Product" className="h-40 w-80 object-cover rounded-t-xl" />
+                                    alt={(item as string)} className="h-40 w-80 object-cover rounded-t-xl" />
                                 <div className="px-4 py-3 w-80">
                                     <p className="text-lg font-bold text-black truncate block capitalize">{(item as string)}</p>
                                 </div>
