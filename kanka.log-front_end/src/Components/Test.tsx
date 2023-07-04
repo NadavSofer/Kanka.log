@@ -13,7 +13,6 @@ interface LogData {
     entry: string;
 }
 
-
 const Test: React.FC = () => {
     const [API_KEY, setAPI_KEY] = useState<string>('');
     const [user, setUser] = useState<User | null>(null);
@@ -60,9 +59,6 @@ const Test: React.FC = () => {
         }
     };
 
-    //--------------------------------------------------------------------------------------
-
-
     const addLogToCollection = () => {
         if (user) {
             const userRef = doc(
@@ -70,7 +66,7 @@ const Test: React.FC = () => {
                 user.email as string
             );
             const logsRef = collection(userRef, 'Logs');
-            const entityNameRef = doc(logsRef, logData.entity_name);
+            const entityNameRef = collection(logsRef, logData.entity_name);
 
             const data = {
                 entity_id: logData.entity_id,
