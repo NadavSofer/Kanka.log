@@ -1,13 +1,12 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react'
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { useAuthState } from 'react-firebase-hooks/auth'
 import { auth } from '../utils/firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
 
-function Signup() {
-
+const ResetPassword = () => {
 
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleReset = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
@@ -15,10 +14,9 @@ function Signup() {
     const confirmPassword = formData.get('confirm-password') as string;
 
 
-    createUserWithEmailAndPassword(auth, email, password)
+    sendPasswordResetEmail(auth, email)
     .then((userCredential) => {
-      const user = userCredential.user;
-      console.log(user);
+      console.log('Password reset email sent');
     })
     .catch((error) => {
       const errorCode = error.code;
@@ -27,6 +25,7 @@ function Signup() {
       console.log(errorMessage);
     });
   }
+
 
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
@@ -39,7 +38,7 @@ function Signup() {
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
               Create an account
             </h1>
-            <form className="space-y-4 md:space-y-6" action="#" onSubmit={(e: React.FormEvent<HTMLFormElement>) => handleSubmit(e)}>
+            <form className="space-y-4 md:space-y-6" action="#" onSubmit={(e: React.FormEvent<HTMLFormElement>) => handleReset(e)}>
               <div>
                 <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your email</label>
                 <input
@@ -95,15 +94,12 @@ function Signup() {
               >
                 Create an account
               </button>
-              <Link to="/Login" className="text-sm font-light text-gray-500 dark:text-gray-400">
-                Already have an account? <a href="#" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Login here</a>
-              </Link>
             </form>
           </div>
         </div>
       </div>
     </section>
-  );
+  )
 }
 
-export default Signup;
+export default ResetPassword

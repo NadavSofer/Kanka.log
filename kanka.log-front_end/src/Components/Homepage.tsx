@@ -25,7 +25,8 @@ function Homepage() {
             .then(res => res.json())
             .then(data => {
                 dispatch(setCampaigns(data.data))
-
+                console.log('thing');
+                
             })
     }
 

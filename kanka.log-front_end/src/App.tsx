@@ -9,6 +9,11 @@ import Campaign from './Components/Campaign';
 import Category from './Components/Category'
 import Entity from './Components/Entity';
 import Footer from './Components/Footer';
+import About from './Components/About';
+import Contact from './Components/Contact';
+import ResetPassword from './Components/ResetPassword';
+import Test from './Components/Test';
+
 
 
 function App() {
@@ -23,11 +28,14 @@ function App() {
         <Route path="/:campaignId/:category/:entity_id" element={<Entity />}/>
         <Route path='/Login' element={<Login/>}/>
         <Route path='/Signup' element={<Signup/>}/>
+        <Route path='/About' element={<About />}/>
+        <Route path='/Contact' element={<Contact />}/>
+        <Route path='/ResetPassword' element={<ResetPassword/>}/>
+        <Route path='/Test' element={<Test />}/>
       </Routes>
       <br/><br/><br/>
       <Footer/>
     </div>
-
     </>
   );
 }
