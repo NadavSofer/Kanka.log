@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { RootState } from '../Redux/store';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { setEntities, setCurrentEntity } from '../Redux/actions';
+import { setEntities } from '../Redux/actions';
 import { Link } from 'react-router-dom';
 
-function Entity() {
+function Category() {
     const key: string = useSelector((state: RootState) => state.key);
     const url: string = useSelector((state: RootState) => state.baseURL);
-    const entities: unknown[] = useSelector((state: RootState) => state.entities);
+    const entities: unknown[] = useSelector((state: RootState) => state.entities) || [];
     const { category, campaignId } = useParams();
     const dispatch = useDispatch();
 
@@ -81,4 +81,4 @@ function Entity() {
     );
 }
 
-export default Entity;
+export default Category;

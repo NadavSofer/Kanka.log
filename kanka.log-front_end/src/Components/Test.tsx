@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { auth, database } from '../utils/firebase';
-import { addDoc, collection, doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { collection, doc, serverTimestamp, setDoc } from 'firebase/firestore';
 
 interface User {
     id: string;
@@ -61,12 +61,14 @@ const Test: React.FC = () => {
 
     const addLogToCollection = () => {
         if (user) {
+            console.log('yep');
+            
             const userRef = doc(
                 collection(database as any, 'usersInfo'),
                 user.email as string
             );
             const logsRef = collection(userRef, 'Logs');
-            const entityNameRef = collection(logsRef, logData.entity_name);
+            const logDocRef = doc(logsRef, logData.entity_id);
 
             const data = {
                 entity_id: logData.entity_id,
@@ -75,13 +77,16 @@ const Test: React.FC = () => {
                 created_at: serverTimestamp(),
             };
 
-            addDoc(entityNameRef, data)
+            setDoc(logDocRef, data)
                 .then(() => {
                     console.log('Log added successfully');
                 })
                 .catch((error) => {
                     console.error('Failed to add log:', error);
                 });
+        }
+        else {
+            alert('not connected to user')
         }
     };
 

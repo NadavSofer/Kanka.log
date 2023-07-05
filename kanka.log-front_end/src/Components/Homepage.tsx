@@ -8,7 +8,7 @@ function Homepage() {
     const dispatch = useDispatch();
     const key: string = useSelector((state: RootState) => state.key);
     const url: string = useSelector((state: RootState) => state.baseURL);
-    const campaigns: unknown[] = useSelector((state: RootState) => state.campaigns);
+    const campaigns: unknown[] = useSelector((state: RootState) => state.campaigns) || [];
     const placeholderImage: string = useSelector((state: RootState) => state.placeholderImage);
 
     useEffect(() => {
@@ -25,8 +25,6 @@ function Homepage() {
             .then(res => res.json())
             .then(data => {
                 dispatch(setCampaigns(data.data))
-                console.log('thing');
-                
             })
     }
 
