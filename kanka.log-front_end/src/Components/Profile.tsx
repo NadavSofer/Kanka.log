@@ -72,7 +72,7 @@ const Profile: React.FC = () => {
                 age: user.age ?? 0,
                 bio: user.bio ?? '',
                 address: user.address ?? '',
-                Logs: [],
+                Logs: [{name: 'thing', thing: 'test', entry: 'blaa'}],
             };
 
             setDoc(userRef, data)

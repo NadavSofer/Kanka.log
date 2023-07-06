@@ -7,17 +7,17 @@ const ChatGPT: React.FC = () => {
         apiKey: OPENAI_API_KEY || '',
     });
     const openai = new OpenAIApi(configuration);
-    const [input, setInput] = useState('');
-    const [output, setOutput] = useState('');
+    const [GPTinput, setGPTInput] = useState('');
+    const [GPToutput, setGPTOutput] = useState('');
 
-    const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-        setInput(e.target.value);
+    const handleGPTChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+        setGPTInput(e.target.value);
     };
 
-    const handleSubmit = async (e: FormEvent) => {
+    const handleGPTSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
-        const prompt = `${input}`;
+        const prompt = `${GPTinput}`;
 
         try {
             const response = await openai.createCompletion({
@@ -26,7 +26,7 @@ const ChatGPT: React.FC = () => {
                 max_tokens: 1000,
             });
             const outputText = response.data.choices[0]?.text || '';
-            setOutput(outputText);
+            setGPTOutput(outputText);
 
             console.log(response.data);
             console.log(outputText);
@@ -37,11 +37,11 @@ const ChatGPT: React.FC = () => {
 
     return (
         <div>
-            <form onSubmit={handleSubmit}>
-                <textarea value={input} onChange={handleInputChange} />
+            <form onSubmit={handleGPTSubmit}>
+                <textarea value={GPTinput} onChange={handleGPTChange} />
                 <button type="submit">Send</button>
             </form>
-            <pre>{output}</pre>
+            <pre>{GPToutput}</pre>
         </div>
     );
 };

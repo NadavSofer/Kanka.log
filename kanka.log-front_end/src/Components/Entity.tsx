@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { TbReplaceFilled } from 'react-icons/tb';
@@ -9,8 +9,10 @@ import { RootState } from '../Redux/store';
 import { setCurrentEntity } from '../Redux/actions';
 import { auth, database } from '../utils/firebase';
 import { addDoc, collection, doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { Configuration, OpenAIApi } from 'openai';
 
-function Entity() {
+const Entity: React.FC = () => {
+    
 
     interface User {
         id: string;
@@ -22,6 +24,15 @@ function Entity() {
     const entity: unknown = useSelector((state: RootState) => state.currentEntity);
     const { campaignId, category, entity_id } = useParams();
     const dispatch = useDispatch();
+    const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_KEY;
+
+    const configuration = new Configuration({
+        apiKey: OPENAI_API_KEY || '',
+    });
+    const openai = new OpenAIApi(configuration);
+    const [GPTinput, setGPTInput] = useState('');
+    const [GPToutput, setGPTOutput] = useState('');
+
     const [user, setUser] = useState<User | null>(null);
 
     const [entityToUpload, setEntityToUpload] = useState({
@@ -29,6 +40,8 @@ function Entity() {
         is_private: true,
         entry: (entity as any).entry || '',
     });
+
+
 
     const fullURL = `${baseURL}/campaigns/${campaignId}/${(category as string).toLowerCase()}/${entity_id}`;
 
@@ -100,7 +113,7 @@ function Entity() {
             const userRef = doc(collection(database, 'usersInfo'), user.email);
             const logsRef = collection(userRef, 'Logs');
             const logDocRef = doc(logsRef, entityToUpload.name);
-            const entityRef = collection(logDocRef, `${serverTimestamp()}`)
+            const entityRef = collection(logDocRef, `${new Date()}`)
 
             const data = {
                 entity_id: entity_id,
@@ -109,7 +122,7 @@ function Entity() {
                 created_at: serverTimestamp()
             };
 
-            setDoc(entityRef, data)
+            addDoc(entityRef, data)
                 .then(() => {
                     console.log('Log document created successfully');
                     const entityCollectionRef = collection(entityRef, 'Entities');
@@ -127,15 +140,17 @@ function Entity() {
     };
 
     const getFireBaseData = async (email: string) => {
+        
         try {
-            const collectionName = 'usersInfo';
-            const userDocRef = doc(database, collectionName, email);
+            const userRef = doc(collection(database, 'usersInfo'), user?.email || '');
+            const logsRef = collection(userRef, 'Logs');
+            const logDocRef = doc(logsRef, entityToUpload.name);
 
-            const userDocSnap = await getDoc(userDocRef);
+            const logDocSnap = await getDoc(logDocRef);
+            console.log('logDocSnap==>', logDocSnap);
 
-            if (userDocSnap.exists()) {
-                const logData = userDocSnap.data();
-                // Do something with the log data
+            if (logDocSnap.exists()) {
+                const logData = logDocSnap.data();
                 console.log(logData);
                 return logData;
             } else {
@@ -160,6 +175,38 @@ function Entity() {
             entry: e.target.value,
         }));
     };
+
+
+    
+    const handleGPTChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+        setGPTInput(e.target.value);
+    };
+
+    const handleGPTSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+
+        const prompt = `${GPTinput}`;
+
+        try {
+            const response = await openai.createCompletion({
+                model: 'text-davinci-003',
+                prompt: prompt,
+                max_tokens: 1000,
+            });
+            const outputText = response.data.choices[0]?.text || '';
+            setGPTOutput(outputText);
+
+            console.log(response.data);
+            console.log(outputText);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    const handleGPTOutChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+        setGPTOutput(e.target.value);
+    };
+
 
     const divStyle: React.CSSProperties = {
         backgroundImage: `url(${(entity as any).image_full})`,
@@ -246,14 +293,16 @@ function Entity() {
 
                                 <div className="grid md:grid-cols-1 text-sm">
                                 <span className="tracking-wide text-xl mb-2">input</span>
+                                <form onSubmit={handleGPTSubmit}>
                                     <textarea
                                         id="entry"
                                         rows={4}
                                         className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-white-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                         placeholder="Write your prompt"
+                                        value={GPTinput} onChange={handleGPTChange}
                                     />
-                                    <form>
-                                        <button type='submit' className='flex items-center gap-1 text-white bg-blue-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm mt-2 px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'>
+                                    
+                                        <button  type='submit' className='flex items-center gap-1 text-white bg-blue-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm mt-2 px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'>
                                             <BsFillSendFill />
                                             <p>send</p>
                                         </button>
@@ -267,6 +316,8 @@ function Entity() {
                                         rows={4}
                                         className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-white-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                         placeholder="output here"
+                                        value={GPToutput}
+                                        onChange={handleGPTOutChange}
                                     />
                                 </div>
                             </div>
