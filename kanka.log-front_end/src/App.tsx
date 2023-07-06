@@ -13,6 +13,8 @@ import About from './Components/About';
 import Contact from './Components/Contact';
 import ResetPassword from './Components/ResetPassword';
 import Test from './Components/Test';
+import ChatGPT from './Components/ChatGPT';
+import Profile from './Components/Profile';
 
 
 
@@ -22,16 +24,18 @@ function App() {
     <div className="bg-gray-50 dark:bg-gray-900">
       <Navbar/>
       <Routes>
-        <Route path="/" element={<Homepage />}/>
-        <Route path="/:campaignId" element={<Campaign />}/>
-        <Route path="/:campaignId/:category" element={<Category />}/>
-        <Route path="/:campaignId/:category/:entity_id" element={<Entity />}/>
+        <Route path="/" element={<Homepage/>}/>
+        <Route path="/:campaignId" element={<Campaign/>}/>
+        <Route path="/:campaignId/:category" element={<Category/>}/>
+        <Route path="/:campaignId/:category/:entity_id" element={<Entity/>}/>
         <Route path='/Login' element={<Login/>}/>
         <Route path='/Signup' element={<Signup/>}/>
-        <Route path='/About' element={<About />}/>
-        <Route path='/Contact' element={<Contact />}/>
+        <Route path='/Profile' element={<Profile/>}/>
+        <Route path='/About' element={<About/>}/>
+        <Route path='/Contact' element={<Contact/>}/>
         <Route path='/ResetPassword' element={<ResetPassword/>}/>
-        <Route path='/Test' element={<Test />}/>
+        <Route path='/Test' element={<Test/>}/>
+        <Route path='/gpt' element={<ChatGPT/>}/>
       </Routes>
       <br/><br/><br/>
       <Footer/>

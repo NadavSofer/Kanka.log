@@ -61,7 +61,7 @@ const Test: React.FC = () => {
 
     const addLogToCollection = () => {
         if (user) {
-            console.log('yep');
+
             
             const userRef = doc(
                 collection(database as any, 'usersInfo'),

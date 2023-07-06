@@ -42,7 +42,7 @@ function Entity() {
         });
 
         if (user && user.email) {
-            fireBaseData(user.email, 'Logs');
+            getFireBaseData(user.email);
         }
 
         return () => unsubscribe();
@@ -81,19 +81,23 @@ function Entity() {
             body: JSON.stringify(entityToUpload),
         };
 
-        fetch(fullURL, requestOptions)
+        try {
+            fetch(fullURL, requestOptions)
             .then(res => res.json())
             .then(data => {
                 console.log('updated successfully');
                 console.log(data);
             });
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     const addLogToCollection = () => {
         if (user) {
             const userRef = doc(collection(database, 'usersInfo'), user.email);
             const logsRef = collection(userRef, 'Logs');
-            const logDocRef = doc(logsRef, entityToUpload.name);
+            const logDocRef = doc(logsRef, `${entityToUpload.name}: ${new Date()}`);
 
             const data = {
                 entity_id: entity_id,
@@ -119,19 +123,16 @@ function Entity() {
         }
     };
 
-    const fireBaseData = async (email: string, logId: string) => {
+    const getFireBaseData = async (email: string) => {
         try {
             const collectionName = 'usersInfo';
             const userDocRef = doc(database, collectionName, email);
-            const logDocRef = doc(userDocRef, 'Logs', logId);
-            console.log('userDocRef==>',userDocRef);
-            console.log('logDocRef==>',logDocRef);
 
-            const logDocSnap = await getDoc(logDocRef);
-            console.log('logDocSnap==>',logDocSnap);
+            const userDocSnap = await getDoc(userDocRef);
+            console.log('userDocSnap==>',userDocSnap);
             
-            if (logDocSnap.exists()) {
-                const logData = logDocSnap.data();
+            if (userDocSnap.exists()) {
+                const logData = userDocSnap.data();
                 // Do something with the log data
                 console.log(logData);
                 return logData;
@@ -203,7 +204,7 @@ function Entity() {
                     <div className="w-full md:w-9/12 mx-2 h-64">
                         <div className="bg-white p-3 shadow-xl rounded-sm">
                             <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
-                                <span className="tracking-wide text-xl">About</span>
+                                <span className="tracking-wide text-xl mb-2">Entry</span>
                             </div>
                             <div className="text-gray-700">
                                 <div className="grid md:grid-cols-1 text-sm">

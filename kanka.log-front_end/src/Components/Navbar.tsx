@@ -46,12 +46,13 @@ function Navbar() {
                 )}
 
                 {user && (
-                    <div className="flex ">
+                    <div className="flex items-center">
                         <button onClick={()=> auth.signOut()} 
-                        className='block py-4 lg:inline-block lg:mt-0 hover:text-white px-4 py-2 hover:bg-blue-500 mr-2'>
+                        className='block py-4 lg:inline-block lg:mt-0 hover:text-white px-4 py-2 hover:bg-blue-500 mr-2'/>
                             sign out
-                        </button>
-                        {user.photoURL && <img src={user.photoURL} className='h-20 block py-4 lg:inline-block lg:mt-0 hover:text-white px-4 py-2 mr-2 h-20'/>}
+                        <Link to='/Profile'>
+                        {user.photoURL && <img src={user.photoURL} className='h-20 block py-4 lg:inline-block lg:mt-0 hover:text-white px-4 py-2 mr-2 h-20 rounded-full'/>}
+                        </Link>
                     </div>
                 )}
 
