@@ -30,10 +30,7 @@ function Navbar() {
             <div className="menu w-full lg:block flex-grow lg:flex lg:items-center lg:w-auto lg:px-3 px-8">
                 <div className="text-md font-bold text-blue-500 lg:flex-grow">
 
-                    <a href="#responsive-header"
-                        className="block py-4 lg:inline-block lg:mt-0 hover:text-white px-4 py-2 hover:bg-blue-500 mr-2">
-                        Menu 1
-                    </a>
+
                 </div>
                 {!user && (
                     <div className="flex ">
@@ -48,8 +45,9 @@ function Navbar() {
                 {user && (
                     <div className="flex items-center">
                         <button onClick={()=> auth.signOut()} 
-                        className='block py-4 lg:inline-block lg:mt-0 hover:text-white px-4 py-2 hover:bg-blue-500 mr-2'/>
+                        className='block py-4 lg:inline-block lg:mt-0 hover:text-white px-4 py-2 hover:bg-blue-500 mr-2'>
                             sign out
+                        </button>
                         <Link to='/Profile'>
                         {user.photoURL && <img src={user.photoURL} className='h-20 block py-4 lg:inline-block lg:mt-0 hover:text-white px-4 py-2 mr-2 h-20 rounded-full'/>}
                         </Link>

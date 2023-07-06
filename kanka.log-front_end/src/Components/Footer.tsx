@@ -15,9 +15,6 @@ function Footer() {
                     <li>
                         <a href="https://kanka.io/" target='blank' className="mr-4 hover:underline md:mr-6">Kanka</a>
                     </li>
-                    <li>
-                        <Link to="/Contact" className="hover:underline">Contact</Link>
-                    </li>
                 </ul>
             </div>
         </footer>

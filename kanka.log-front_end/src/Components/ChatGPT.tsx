@@ -1,29 +1,35 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
-import axios from 'axios';
+import { Configuration, OpenAIApi } from 'openai';
 
-const ChatGPT = () => {
+const ChatGPT: React.FC = () => {
+    const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_KEY;
+    const configuration = new Configuration({
+        apiKey: OPENAI_API_KEY || '',
+    });
+    const openai = new OpenAIApi(configuration);
     const [input, setInput] = useState('');
     const [output, setOutput] = useState('');
 
-    const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
         setInput(e.target.value);
     };
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
-        try {
-            const response = await axios.post('https://api.openai.com/v1/engines/davinci-codex/completions', {
-                prompt: input,
-                max_tokens: 100,
-            }, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${process.env.REACT_APP_OPENAI_KEY}`,
-                },
-            });
+        const prompt = `${input}`;
 
-            setOutput(response.data.choices[0].text);
+        try {
+            const response = await openai.createCompletion({
+                model: 'text-davinci-003',
+                prompt: prompt,
+                max_tokens: 1000,
+            });
+            const outputText = response.data.choices[0]?.text || '';
+            setOutput(outputText);
+
+            console.log(response.data);
+            console.log(outputText);
         } catch (error) {
             console.error('Error:', error);
         }
@@ -32,10 +38,10 @@ const ChatGPT = () => {
     return (
         <div>
             <form onSubmit={handleSubmit}>
-                <input type="text" value={input} onChange={handleInputChange} />
+                <textarea value={input} onChange={handleInputChange} />
                 <button type="submit">Send</button>
             </form>
-            <div>{output}</div>
+            <pre>{output}</pre>
         </div>
     );
 };

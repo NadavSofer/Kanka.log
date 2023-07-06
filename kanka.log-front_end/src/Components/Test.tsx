@@ -1,26 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { auth, database } from '../utils/firebase';
-import { collection, doc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
 
 interface User {
     id: string;
     email?: string;
+    firstName?: string;
+    lastName?: string;
+    age?: number;
+    bio?: string;
+    address?: string;
 }
 
-interface LogData {
-    entity_id: string;
-    entity_name: string;
-    entry: string;
-}
-
-const Test: React.FC = () => {
+const Profile: React.FC = () => {
     const [API_KEY, setAPI_KEY] = useState<string>('');
     const [user, setUser] = useState<User | null>(null);
-    const [logData, setLogData] = useState<LogData>({
-        entity_id: '123',
-        entity_name: 'Entity 1',
-        entry: 'Log entry',
-    });
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -40,121 +34,117 @@ const Test: React.FC = () => {
 
     const handleSaveAPI = () => {
         if (user) {
-            const userRef = doc(collection(database, "usersInfo"), user.email);
-            console.log(user);
+            const userRef = doc(collection(database, 'usersInfo'), user.email);
 
             const data = {
                 email: user.email,
                 API_KEY: API_KEY,
-                Logs: [],
+                firstName: user.firstName ?? '',
+                lastName: user.lastName ?? '',
+                age: user.age ?? 0,
+                bio: user.bio ?? '',
+                address: user.address ?? '',
             };
 
             setDoc(userRef, data)
                 .then(() => {
-                    console.log("API_KEY saved successfully");
+                    console.log('API_KEY saved successfully');
                 })
                 .catch((error: Error) => {
-                    console.error("Failed to save API_KEY:", error);
+                    console.error('Failed to save API_KEY:', error);
                 });
         }
     };
 
-    const addLogToCollection = () => {
+    const getFireBaseData = async (email: string) => {
+        try {
+            const collectionName = 'usersInfo';
+            const userDocRef = doc(database, collectionName, email);
+
+            const userDocSnap = await getDoc(userDocRef);
+            console.log('userDocSnap==>', userDocSnap);
+
+            if (userDocSnap.exists()) {
+                const logData = userDocSnap.data();
+                console.log(logData);
+                return logData;
+            } else {
+                console.log('No such document!');
+            }
+        } catch (error) {
+            console.error('Error getting document:', error);
+        }
+    };
+
+    const handleGetFireBaseData = () => {
         if (user) {
-
-            
-            const userRef = doc(
-                collection(database as any, 'usersInfo'),
-                user.email as string
-            );
-            const logsRef = collection(userRef, 'Logs');
-            const logDocRef = doc(logsRef, logData.entity_id);
-
-            const data = {
-                entity_id: logData.entity_id,
-                entity_name: logData.entity_name,
-                entry: logData.entry,
-                created_at: serverTimestamp(),
-            };
-
-            setDoc(logDocRef, data)
-                .then(() => {
-                    console.log('Log added successfully');
-                })
-                .catch((error) => {
-                    console.error('Failed to add log:', error);
-                });
+            getFireBaseData(user.email || '');
         }
-        else {
-            alert('not connected to user')
-        }
-    };
-
-    const handleLogChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = event.target;
-        setLogData((prevData) => ({
-            ...prevData,
-            [name]: value,
-        }));
     };
 
     return (
         <div>
-            <div>
-                <h1>API Settings</h1>
-                {user && (
-                    <div className="flex">
-                        <p>User: {user.email}</p>
-                    </div>
-                )}
-                <input
-                    type="text"
-                    value={API_KEY}
-                    onChange={handleInputChange}
-                    placeholder="Enter API Key"
-                />
-                <button onClick={handleSaveAPI}>Save</button>
-            </div>
-            <br />
-            <div>
-                <h1>Add Log</h1>
+            <h1>API Settings</h1>
+            {user && <p>User: {user.email}</p>}
+            <input
+                type="text"
+                value={API_KEY}
+                onChange={handleInputChange}
+                placeholder="Enter API Key"
+            />
+
+            <h1>Additional Information</h1>
+            {user && (
                 <div>
                     <label>
-                        Entity ID:
+                        First Name:
                         <input
                             type="text"
-                            name="entity_id"
-                            value={logData.entity_id}
-                            onChange={handleLogChange}
+                            value={user.firstName ?? ''}
+                            onChange={(e) => setUser({ ...user, firstName: e.target.value })}
+                        />
+                    </label>
+                    <br />
+                    <label>
+                        Last Name:
+                        <input
+                            type="text"
+                            value={user.lastName ?? ''}
+                            onChange={(e) => setUser({ ...user, lastName: e.target.value })}
+                        />
+                    </label>
+                    <br />
+                    <label>
+                        Age:
+                        <input
+                            type="number"
+                            value={user.age ?? ''}
+                            onChange={(e) => setUser({ ...user, age: parseInt(e.target.value) })}
+                        />
+                    </label>
+                    <br />
+                    <label>
+                        Bio:
+                        <textarea
+                            value={user.bio ?? ''}
+                            onChange={(e) => setUser({ ...user, bio: e.target.value })}
+                        />
+                    </label>
+                    <br />
+                    <label>
+                        Address:
+                        <input
+                            type="text"
+                            value={user.address ?? ''}
+                            onChange={(e) => setUser({ ...user, address: e.target.value })}
                         />
                     </label>
                 </div>
-                <div>
-                    <label>
-                        Entity Name:
-                        <input
-                            type="text"
-                            name="entity_name"
-                            value={logData.entity_name}
-                            onChange={handleLogChange}
-                        />
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        Entry:
-                        <input
-                            type="text"
-                            name="entry"
-                            value={logData.entry}
-                            onChange={handleLogChange}
-                        />
-                    </label>
-                </div>
-                <button onClick={addLogToCollection}>Add Log</button>
-            </div>
+            )}
+            <button onClick={handleSaveAPI}>Save</button>
+            <button onClick={handleGetFireBaseData}>Get Firebase Data</button>
         </div>
     );
 };
 
-export default Test;
+export default Profile;

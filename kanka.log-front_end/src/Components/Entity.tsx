@@ -3,6 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { TbReplaceFilled } from 'react-icons/tb';
 import { RiGitRepositoryCommitsFill } from 'react-icons/ri';
+import { BsFillSendFill } from 'react-icons/bs'
+import { MdSendAndArchive } from 'react-icons/md'
 import { RootState } from '../Redux/store';
 import { setCurrentEntity } from '../Redux/actions';
 import { auth, database } from '../utils/firebase';
@@ -83,11 +85,11 @@ function Entity() {
 
         try {
             fetch(fullURL, requestOptions)
-            .then(res => res.json())
-            .then(data => {
-                console.log('updated successfully');
-                console.log(data);
-            });
+                .then(res => res.json())
+                .then(data => {
+                    console.log('updated successfully');
+                    console.log(data);
+                });
         } catch (error) {
             console.log(error);
         }
@@ -97,7 +99,8 @@ function Entity() {
         if (user) {
             const userRef = doc(collection(database, 'usersInfo'), user.email);
             const logsRef = collection(userRef, 'Logs');
-            const logDocRef = doc(logsRef, `${entityToUpload.name}: ${new Date()}`);
+            const logDocRef = doc(logsRef, entityToUpload.name);
+            const entityRef = collection(logDocRef, `${serverTimestamp()}`)
 
             const data = {
                 entity_id: entity_id,
@@ -106,10 +109,10 @@ function Entity() {
                 created_at: serverTimestamp()
             };
 
-            setDoc(logDocRef, data)
+            setDoc(entityRef, data)
                 .then(() => {
                     console.log('Log document created successfully');
-                    const entityCollectionRef = collection(logDocRef, 'Entities');
+                    const entityCollectionRef = collection(entityRef, 'Entities');
                     return addDoc(entityCollectionRef, data);
                 })
                 .then(() => {
@@ -129,8 +132,7 @@ function Entity() {
             const userDocRef = doc(database, collectionName, email);
 
             const userDocSnap = await getDoc(userDocRef);
-            console.log('userDocSnap==>',userDocSnap);
-            
+
             if (userDocSnap.exists()) {
                 const logData = userDocSnap.data();
                 // Do something with the log data
@@ -201,7 +203,7 @@ function Entity() {
 
                     </div>
 
-                    <div className="w-full md:w-9/12 mx-2 h-64">
+                    <div className="w-full md:w-9/12 mx-2 h-full">
                         <div className="bg-white p-3 shadow-xl rounded-sm">
                             <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
                                 <span className="tracking-wide text-xl mb-2">Entry</span>
@@ -211,7 +213,7 @@ function Entity() {
                                     <textarea
                                         id="entry"
                                         rows={4}
-                                        className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-blue-500 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                        className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-white-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                         value={cleanHtml(entityToUpload.entry) || ''}
                                         placeholder="Write something about the entity"
                                         onChange={handleEntryChange}
@@ -235,67 +237,63 @@ function Entity() {
                         </div>
 
 
-                        <div className="my-4"></div>
 
+                        <div className="bg-white p-3 mt-4 shadow-xl rounded-sm">
+                            <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
+                                <span className="tracking-wide text-xl mb-2">Chat GPT</span>
+                            </div>
+                            <div className="text-gray-700">
 
-                        <div className="bg-white p-3 shadow-xl rounded-sm">
-
-                            <div className="grid grid-cols-2">
-                                <div>
-                                    <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8 mb-3">
-                                        <span className="text-blue-500">
-                                            <svg className="h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                            </svg>
-                                        </span>
-                                        <span className="tracking-wide">Experience</span>
-                                    </div>
-                                    <ul className="list-inside space-y-2">
-                                        <li>
-                                            <div className="text-teal-600">Owner at Her Company Inc.</div>
-                                            <div className="text-gray-500 text-xs">March 2020 - Now</div>
-                                        </li>
-                                        <li>
-                                            <div className="text-teal-600">Owner at Her Company Inc.</div>
-                                            <div className="text-gray-500 text-xs">March 2020 - Now</div>
-                                        </li>
-                                        <li>
-                                            <div className="text-teal-600">Owner at Her Company Inc.</div>
-                                            <div className="text-gray-500 text-xs">March 2020 - Now</div>
-                                        </li>
-                                        <li>
-                                            <div className="text-teal-600">Owner at Her Company Inc.</div>
-                                            <div className="text-gray-500 text-xs">March 2020 - Now</div>
-                                        </li>
-                                    </ul>
+                                <div className="grid md:grid-cols-1 text-sm">
+                                <span className="tracking-wide text-xl mb-2">input</span>
+                                    <textarea
+                                        id="entry"
+                                        rows={4}
+                                        className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-white-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                        placeholder="Write your prompt"
+                                    />
+                                    <form>
+                                        <button type='submit' className='flex items-center gap-1 text-white bg-blue-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm mt-2 px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'>
+                                            <BsFillSendFill />
+                                            <p>send</p>
+                                        </button>
+                                    </form>
                                 </div>
-                                <div>
-                                    <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8 mb-3">
-                                        <span className="text-blue-500">
-                                            <svg className="h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                stroke="currentColor">
-                                                <path fill="#fff" d="M12 14l9-5-9-5-9 5 9 5z" />
-                                                <path fill="#fff"
-                                                    d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                                    d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
-                                            </svg>
-                                        </span>
-                                        <span className="tracking-wide">Education</span>
-                                    </div>
-                                    <ul className="list-inside space-y-2">
-                                        <li>
-                                            <div className="text-teal-600">Masters Degree in Oxford</div>
-                                            <div className="text-gray-500 text-xs">March 2020 - Now</div>
-                                        </li>
-                                        <li>
-                                            <div className="text-teal-600">Bachelors blue in LPU</div>
-                                            <div className="text-gray-500 text-xs">March 2020 - Now</div>
-                                        </li>
-                                    </ul>
+
+                                <div className="grid md:grid-cols-1 text-sm">
+                                <span className="tracking-wide text-xl mb-2">output</span>
+                                    <textarea
+                                        id="entry"
+                                        rows={4}
+                                        className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-white-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                        placeholder="output here"
+                                    />
                                 </div>
+                            </div>
+                            <div className='flex justify-end w-full mt-3 items-center gap-3'>
+
+                                <form>
+                                    <button type='submit' className='flex items-center gap-1 text-white bg-blue-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'>
+                                        <MdSendAndArchive />
+                                        <p>save</p>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+
+
+
+                        <div className="bg-white p-3 mt-4 shadow-xl rounded-sm">
+                            <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
+                                <span className="tracking-wide text-xl mb-2">History</span>
+                            </div>
+                            <div className="text-gray-700">
+                                <div className="grid md:grid-cols-1 text-sm">
+                                    <h1>info here</h1>
+                                </div>
+                            </div>
+                            <div className='flex justify-end w-full mt-3 items-center gap-3'>
                             </div>
                         </div>
                     </div>

@@ -10,15 +10,19 @@ import Category from './Components/Category'
 import Entity from './Components/Entity';
 import Footer from './Components/Footer';
 import About from './Components/About';
-import Contact from './Components/Contact';
 import ResetPassword from './Components/ResetPassword';
 import Test from './Components/Test';
 import ChatGPT from './Components/ChatGPT';
 import Profile from './Components/Profile';
+import { auth } from './utils/firebase'; 
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 
 
 function App() {
+  
+  const [user, loading] = useAuthState(auth);
+
   return (
     <>
     <div className="bg-gray-50 dark:bg-gray-900">
@@ -32,7 +36,6 @@ function App() {
         <Route path='/Signup' element={<Signup/>}/>
         <Route path='/Profile' element={<Profile/>}/>
         <Route path='/About' element={<About/>}/>
-        <Route path='/Contact' element={<Contact/>}/>
         <Route path='/ResetPassword' element={<ResetPassword/>}/>
         <Route path='/Test' element={<Test/>}/>
         <Route path='/gpt' element={<ChatGPT/>}/>
