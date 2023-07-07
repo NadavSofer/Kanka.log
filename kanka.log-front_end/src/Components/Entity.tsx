@@ -3,8 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { TbReplaceFilled } from 'react-icons/tb';
 import { RiGitRepositoryCommitsFill } from 'react-icons/ri';
-import { BsFillSendFill } from 'react-icons/bs'
-import { MdSendAndArchive } from 'react-icons/md'
+import { BsFillSendFill } from 'react-icons/bs';
+import { BiSolidUpArrowSquare } from 'react-icons/bi';
 import { RootState } from '../Redux/store';
 import { setCurrentEntity } from '../Redux/actions';
 import { auth, database } from '../utils/firebase';
@@ -12,7 +12,14 @@ import { addDoc, collection, doc, getDoc, serverTimestamp, setDoc } from 'fireba
 import { Configuration, OpenAIApi } from 'openai';
 
 const Entity: React.FC = () => {
-    
+    interface Log {
+        [key: string]: {
+            entity_id: string;
+            entity_name: string;
+            entry: string;
+            created_at: Date;
+        };
+    }
 
     interface User {
         id: string;
@@ -41,7 +48,7 @@ const Entity: React.FC = () => {
         entry: (entity as any).entry || '',
     });
 
-
+    const [logs, setLogs] = useState<Log[]>([]);
 
     const fullURL = `${baseURL}/campaigns/${campaignId}/${(category as string).toLowerCase()}/${entity_id}`;
 
@@ -57,7 +64,7 @@ const Entity: React.FC = () => {
         });
 
         if (user && user.email) {
-            getFireBaseData(user.email);
+            getFireBaseData();
         }
 
         return () => unsubscribe();
@@ -66,12 +73,12 @@ const Entity: React.FC = () => {
     const getData = () => {
         fetch(fullURL, {
             headers: {
-                'Authorization': 'Bearer ' + key,
-                'Content-type': 'application/json'
-            }
+                Authorization: 'Bearer ' + key,
+                'Content-type': 'application/json',
+            },
         })
-            .then(res => res.json())
-            .then(data => {
+            .then((res) => res.json())
+            .then((data) => {
                 dispatch(setCurrentEntity(data.data));
                 setEntityToUpload({
                     name: data.data.name || '',
@@ -79,7 +86,7 @@ const Entity: React.FC = () => {
                     entry: data.data.entry || '',
                 });
             })
-            .catch(err => {
+            .catch((err) => {
                 console.log(err);
             });
     };
@@ -90,7 +97,7 @@ const Entity: React.FC = () => {
         const requestOptions = {
             method: 'PUT',
             headers: {
-                'Authorization': `Bearer ${key}`,
+                Authorization: `Bearer ${key}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(entityToUpload),
@@ -98,8 +105,8 @@ const Entity: React.FC = () => {
 
         try {
             fetch(fullURL, requestOptions)
-                .then(res => res.json())
-                .then(data => {
+                .then((res) => res.json())
+                .then((data) => {
                     console.log('updated successfully');
                     console.log(data);
                 });
@@ -113,23 +120,35 @@ const Entity: React.FC = () => {
             const userRef = doc(collection(database, 'usersInfo'), user.email);
             const logsRef = collection(userRef, 'Logs');
             const logDocRef = doc(logsRef, entityToUpload.name);
-            const entityRef = collection(logDocRef, `${new Date()}`)
 
             const data = {
                 entity_id: entity_id,
                 entity_name: entityToUpload.name,
                 entry: entityToUpload.entry,
-                created_at: serverTimestamp()
+                created_at: serverTimestamp(),
             };
 
-            addDoc(entityRef, data)
+            addDoc(logsRef, data)
                 .then(() => {
                     console.log('Log document created successfully');
-                    const entityCollectionRef = collection(entityRef, 'Entities');
+                    const entityCollectionRef = collection(logsRef, 'Entities');
                     return addDoc(entityCollectionRef, data);
                 })
                 .then(() => {
                     console.log('Collection created and data added successfully');
+                    // setLogs((prevLogs) => [
+                    //     ...prevLogs,
+                    //     {
+                    //         [entityToUpload.name]: {
+                    //             [new Date().toString()]: {
+                    //                 entity_id: entity_id,
+                    //                 entity_name: entityToUpload.name,
+                    //                 entry: entityToUpload.entry,
+                    //                 created_at: new Date(),
+                    //             },
+                    //         },
+                    //     },
+                    // ]);
                 })
                 .catch((error) => {
                     console.error('Failed to add log:', error);
@@ -139,19 +158,17 @@ const Entity: React.FC = () => {
         }
     };
 
-    const getFireBaseData = async (email: string) => {
-        
+    const getFireBaseData = async () => {
         try {
-            const userRef = doc(collection(database, 'usersInfo'), user?.email || '');
-            const logsRef = collection(userRef, 'Logs');
-            const logDocRef = doc(logsRef, entityToUpload.name);
+            const dbRef = collection(database, 'usersInfo');
+            const userRef = doc(dbRef, user?.email || '');
 
-            const logDocSnap = await getDoc(logDocRef);
-            console.log('logDocSnap==>', logDocSnap);
+            const userRefSnap = await getDoc(userRef);
+            console.log('userRefSnap==>', userRefSnap);
 
-            if (logDocSnap.exists()) {
-                const logData = logDocSnap.data();
-                console.log(logData);
+            if (userRefSnap.exists()) {
+                const logData = userRefSnap.data();
+                console.log(logData['Logs']);
                 return logData;
             } else {
                 console.log('No such document!');
@@ -161,13 +178,11 @@ const Entity: React.FC = () => {
         }
     };
 
-
-
     const handleUploadSave = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         uploadEntity(e);
-        addLogToCollection()
-    }
+        addLogToCollection();
+    };
 
     const handleEntryChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setEntityToUpload((prevEntity) => ({
@@ -176,8 +191,6 @@ const Entity: React.FC = () => {
         }));
     };
 
-
-    
     const handleGPTChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
         setGPTInput(e.target.value);
     };
@@ -207,6 +220,12 @@ const Entity: React.FC = () => {
         setGPTOutput(e.target.value);
     };
 
+    const handleGPTUpload = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const updatedEntity = { ...entityToUpload, entry: GPToutput };
+        setEntityToUpload(updatedEntity);
+    };
+
 
     const divStyle: React.CSSProperties = {
         backgroundImage: `url(${(entity as any).image_full})`,
@@ -226,30 +245,27 @@ const Entity: React.FC = () => {
             <div className="container mx-auto my-5 p-5">
                 <div className="md:flex no-wrap md:-mx-2 ">
                     <div className="w-full md:w-3/12 md:mx-2">
-
                         <div className="bg-white p-3 border-t-4 border-blue-500 shadow-xl" style={divStyle}>
                             <div className="image overflow-hidden h-48">
-                                <img className="h-auto w-full mx-auto"
-                                    src="https://lavinephotography.com.au/wp-content/uploads/2017/01/PROFILE-Photography-112.jpg"
-                                    alt="" />
                             </div>
-                            <h1 className="text-white font-bold text-xl leading-8 my-1 px-4 py-1 rounded bg-black bg-opacity-50"
-                                style={{ background: '00000050' }}>{(entity as any).name}</h1>
-                            <ul
-                                className="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-xl">
+                            <h1
+                                className="text-white font-bold text-xl leading-8 my-1 px-4 py-1 rounded bg-black bg-opacity-50"
+                                style={{ background: '00000050' }}
+                            >
+                                {(entity as any).name}
+                            </h1>
+                            <ul className="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-xl">
                                 <li className="flex items-center py-3">
                                     <span>Status</span>
                                     <span className="ml-auto">
-                                        <span
-                                            className=" py-1 px-2 rounded text-sm">{!(entity as any).is_dead ? 'Alive' : 'Dead'}
+                                        <span className="py-1 px-2 rounded text-sm">
+                                            {!(entity as any).is_dead ? 'Alive' : 'Dead'}
                                         </span>
                                     </span>
                                 </li>
                             </ul>
                         </div>
-
                     </div>
-
                     <div className="w-full md:w-9/12 mx-2 h-full">
                         <div className="bg-white p-3 shadow-xl rounded-sm">
                             <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
@@ -267,42 +283,48 @@ const Entity: React.FC = () => {
                                     />
                                 </div>
                             </div>
-                            <div className='flex justify-end w-full mt-3 items-center gap-3'>
+                            <div className="flex justify-end w-full mt-3 items-center gap-3">
                                 <form onSubmit={uploadEntity}>
-                                    <button type='submit' className='flex items-center gap-1 text-white bg-blue-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'>
+                                    <button
+                                        type="submit"
+                                        className="flex items-center gap-1 text-white bg-blue-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                                    >
                                         <TbReplaceFilled />
                                         <p>Upload</p>
                                     </button>
                                 </form>
                                 <form onSubmit={handleUploadSave}>
-                                    <button type='submit' className='flex items-center gap-1 text-white bg-blue-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'>
+                                    <button
+                                        type="submit"
+                                        className="flex items-center gap-1 text-white bg-blue-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                                    >
                                         <RiGitRepositoryCommitsFill />
                                         <p>Save and Upload</p>
                                     </button>
                                 </form>
                             </div>
                         </div>
-
-
-
                         <div className="bg-white p-3 mt-4 shadow-xl rounded-sm">
                             <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
                                 <span className="tracking-wide text-xl mb-2">Chat GPT</span>
                             </div>
                             <div className="text-gray-700">
-
                                 <div className="grid md:grid-cols-1 text-sm">
-                                <span className="tracking-wide text-xl mb-2">input</span>
-                                <form onSubmit={handleGPTSubmit}>
-                                    <textarea
-                                        id="entry"
-                                        rows={4}
-                                        className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-white-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        placeholder="Write your prompt"
-                                        value={GPTinput} onChange={handleGPTChange}
-                                    />
-                                    
-                                        <button  type='submit' className='flex items-center gap-1 text-white bg-blue-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm mt-2 px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'>
+                                    <span className="tracking-wide text-xl mb-2">input</span>
+                                    <form onSubmit={handleGPTSubmit}>
+                                        <textarea
+                                            id="entry"
+                                            rows={4}
+                                            className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-white-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            placeholder="Write your prompt"
+                                            value={GPTinput}
+                                            onChange={handleGPTChange}
+                                        />
+
+                                        <button
+                                            type="submit"
+                                            className="flex items-center gap-1 text-white bg-blue-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm mt-2 px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                                        >
                                             <BsFillSendFill />
                                             <p>send</p>
                                         </button>
@@ -310,47 +332,45 @@ const Entity: React.FC = () => {
                                 </div>
 
                                 <div className="grid md:grid-cols-1 text-sm">
-                                <span className="tracking-wide text-xl mb-2">output</span>
-                                    <textarea
-                                        id="entry"
-                                        rows={4}
-                                        className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-white-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        placeholder="output here"
-                                        value={GPToutput}
-                                        onChange={handleGPTOutChange}
-                                    />
-                                </div>
-                            </div>
-                            <div className='flex justify-end w-full mt-3 items-center gap-3'>
+                                    <span className="tracking-wide text-xl mb-2">output</span>
+                                    <form onSubmit={e => handleGPTUpload(e)}>
+                                        <textarea
+                                            id="entry"
+                                            rows={4}
+                                            className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-white-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            placeholder="output here"
+                                            value={GPToutput}
+                                            onChange={handleGPTOutChange}
+                                        />
 
-                                <form>
-                                    <button type='submit' className='flex items-center gap-1 text-white bg-blue-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800'>
-                                        <MdSendAndArchive />
-                                        <p>save</p>
-                                    </button>
-                                </form>
+                                        <button
+                                            type="submit"
+                                            className="flex items-center gap-1 text-white bg-blue-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                                        >
+                                            <BiSolidUpArrowSquare />
+                                            <p>Move to Entry</p>
+                                        </button>
+                                    </form>
+                                </div>
+
                             </div>
                         </div>
-
-
-
-
                         <div className="bg-white p-3 mt-4 shadow-xl rounded-sm">
                             <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
                                 <span className="tracking-wide text-xl mb-2">History</span>
                             </div>
                             <div className="text-gray-700">
-                                <div className="grid md:grid-cols-1 text-sm">
+                                <div className="gridmd:grid-cols-1 text-sm">
                                     <h1>info here</h1>
                                 </div>
                             </div>
-                            <div className='flex justify-end w-full mt-3 items-center gap-3'>
-                            </div>
+                            <div className="flex justify-end w-full mt-3 items-center gap-3"></div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    )
-}
-export default Entity
+        </div >
+    );
+};
+
+export default Entity;

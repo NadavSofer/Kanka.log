@@ -2,6 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { auth, database } from '../utils/firebase';
 import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
 
+interface Log {
+    name: {
+        entity_id: string;
+        entity_name: string
+        entry: string;
+        created_at: any
+    }
+}
+
 interface User {
     id: string;
     email?: string;
@@ -10,6 +19,7 @@ interface User {
     age?: number;
     bio?: string;
     address?: string;
+    Logs? : Log[]
 }
 
 interface UserData {
@@ -24,17 +34,14 @@ interface UserData {
 const Profile: React.FC = () => {
     const [API_KEY, setAPI_KEY] = useState<string>('');
     const [user, setUser] = useState<User | null>(null);
-    const [userData, setUserData] = useState<UserData | null>(null)
+    const [userData, setUserData] = useState<UserData | null>(null);
 
     useEffect(() => {
-        if (user) {
-            getFireBaseData(user.email || '');
-        }
-
         const unsubscribe = auth.onAuthStateChanged((user) => {
             if (user) {
                 const { uid, email } = user;
                 setUser({ id: uid, email: email ?? undefined });
+                getFireBaseData(user.email || '');
             } else {
                 setUser(null);
             }
@@ -72,7 +79,7 @@ const Profile: React.FC = () => {
                 age: user.age ?? 0,
                 bio: user.bio ?? '',
                 address: user.address ?? '',
-                Logs: [{name: 'thing', thing: 'test', entry: 'blaa'}],
+                Logs: user.Logs ?? []
             };
 
             setDoc(userRef, data)
@@ -94,9 +101,7 @@ const Profile: React.FC = () => {
             if (userDocSnap.exists()) {
                 const logData = userDocSnap.data();
                 setUserData(logData);
-                console.log(userData);
-
-                return logData;
+                console.log(logData);
             } else {
                 console.log('No such document!');
             }
@@ -110,7 +115,6 @@ const Profile: React.FC = () => {
             getFireBaseData(user.email || '');
         }
     };
-
 
     return (
         <div>
@@ -162,7 +166,7 @@ const Profile: React.FC = () => {
                     </label>
                     <br />
                     <label>
-                        address:
+                        Address:
                         <input
                             type="text"
                             value={user.address ?? ''}

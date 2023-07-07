@@ -14,15 +14,12 @@ import ResetPassword from './Components/ResetPassword';
 import Test from './Components/Test';
 import ChatGPT from './Components/ChatGPT';
 import Profile from './Components/Profile';
-import { auth } from './utils/firebase'; 
-import { useAuthState } from 'react-firebase-hooks/auth';
+
 
 
 
 function App() {
   
-  const [user, loading] = useAuthState(auth);
-
   return (
     <>
     <div className="bg-gray-50 dark:bg-gray-900">

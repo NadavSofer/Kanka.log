@@ -1,10 +1,12 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { auth } from '../utils/firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { GoogleAuthProvider, createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { FcGoogle } from 'react-icons/fc';
 
 function Signup() {
-
+  const googleProvider = new GoogleAuthProvider();
+  const navigate = useNavigate();
 
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -13,7 +15,6 @@ function Signup() {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
     const confirmPassword = formData.get('confirm-password') as string;
-
 
     createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
@@ -27,6 +28,18 @@ function Signup() {
       console.log(errorMessage);
     });
   }
+
+  const googleLogin = async () => {
+    try {
+        const result = await signInWithPopup(auth, googleProvider);
+        navigate('/')
+        console.log(result.user);
+
+    } catch (error) {
+        console.log(error);
+
+    }
+}
 
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
@@ -95,6 +108,7 @@ function Signup() {
               >
                 Create an account
               </button>
+              <button onClick={googleLogin} type="submit" className="w-full text-white bg-blue-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 flex mx-auto justify-center gap-4"><FcGoogle className='text-xl bg-white rounded shadow' /> sign up with google</button>
               <Link to="/Login" className="text-sm font-light text-gray-500 dark:text-gray-400">
                 Already have an account? <a href="#" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Login here</a>
               </Link>

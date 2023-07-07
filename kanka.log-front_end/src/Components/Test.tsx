@@ -28,6 +28,12 @@ const Profile: React.FC = () => {
         return () => unsubscribe();
     }, []);
 
+    function cleanHtml(html: string) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        return doc.body.textContent || '';
+    }
+
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setAPI_KEY(event.target.value);
     };
