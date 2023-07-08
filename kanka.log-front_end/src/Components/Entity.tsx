@@ -117,38 +117,18 @@ const Entity: React.FC = () => {
 
     const addLogToCollection = () => {
         if (user) {
-            const userRef = doc(collection(database, 'usersInfo'), user.email);
-            const logsRef = collection(userRef, 'Logs');
-            const logDocRef = doc(logsRef, entityToUpload.name);
-
+            const dataRef = doc(database, 'usersInfo', `${user.email}`, 'Logs', `${(entity as any).name}`, `${new Date()}`,'data');
+            
             const data = {
                 entity_id: entity_id,
                 entity_name: entityToUpload.name,
                 entry: entityToUpload.entry,
                 created_at: serverTimestamp(),
             };
-
-            addDoc(logsRef, data)
+    
+            setDoc(dataRef, data)
                 .then(() => {
-                    console.log('Log document created successfully');
-                    const entityCollectionRef = collection(logsRef, 'Entities');
-                    return addDoc(entityCollectionRef, data);
-                })
-                .then(() => {
-                    console.log('Collection created and data added successfully');
-                    // setLogs((prevLogs) => [
-                    //     ...prevLogs,
-                    //     {
-                    //         [entityToUpload.name]: {
-                    //             [new Date().toString()]: {
-                    //                 entity_id: entity_id,
-                    //                 entity_name: entityToUpload.name,
-                    //                 entry: entityToUpload.entry,
-                    //                 created_at: new Date(),
-                    //             },
-                    //         },
-                    //     },
-                    // ]);
+                    console.log('Log document created and data added successfully');
                 })
                 .catch((error) => {
                     console.error('Failed to add log:', error);
@@ -157,6 +137,7 @@ const Entity: React.FC = () => {
             alert('Not connected to user');
         }
     };
+    
 
     const getFireBaseData = async () => {
         try {

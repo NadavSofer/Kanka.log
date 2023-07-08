@@ -16,6 +16,8 @@ function Homepage() {
     const campaigns: unknown[] = useSelector((state: RootState) => state.campaigns) || [];
     const placeholderImage: string = useSelector((state: RootState) => state.placeholderImage);
     const [user, loading] = useAuthState(auth);
+    
+    console.log(key);
 
     useEffect(() => {
         getData()
@@ -33,6 +35,8 @@ function Homepage() {
                 dispatch(setCampaigns(data.data))
             })
     }
+
+
 
     const divStyle: React.CSSProperties = {
         backgroundImage: `url(${landscape})`,

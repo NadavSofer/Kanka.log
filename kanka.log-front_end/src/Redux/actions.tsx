@@ -18,3 +18,10 @@ export const setCurrentEntity = (id:string) => {
         payload: id
     }
 }
+
+export const setAPI_KEY = (key:string) => {
+    return {
+        type: 'setAPI_KEY',
+        payload: key
+    }
+}

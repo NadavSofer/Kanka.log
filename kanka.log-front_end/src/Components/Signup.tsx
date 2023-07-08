@@ -19,7 +19,7 @@ function Signup() {
     createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       const user = userCredential.user;
-      console.log(user);
+      navigate('/SetKey')
     })
     .catch((error) => {
       const errorCode = error.code;
@@ -32,7 +32,7 @@ function Signup() {
   const googleLogin = async () => {
     try {
         const result = await signInWithPopup(auth, googleProvider);
-        navigate('/')
+        navigate('/SetKey')
         console.log(result.user);
 
     } catch (error) {
