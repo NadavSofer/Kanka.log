@@ -10,9 +10,6 @@ function Footer() {
                 </span>
                 <ul className="flex flex-wrap items-center mt-3 text-sm font-medium text-gray-500 dark:text-gray-400 sm:mt-0">
                     <li>
-                        <Link to="/About" className="mr-4 hover:underline md:mr-6 ">About</Link>
-                    </li>
-                    <li>
                         <a href="https://kanka.io/" target='blank' className="mr-4 hover:underline md:mr-6">Kanka</a>
                     </li>
                 </ul>

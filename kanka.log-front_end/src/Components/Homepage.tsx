@@ -1,42 +1,70 @@
-import React from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { RootState } from '../Redux/store'
-import { useEffect } from 'react'
-import { setCampaigns } from '../Redux/actions'
-import { Link } from 'react-router-dom'
-import { auth } from '../utils/firebase';
+import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../Redux/store';
+import { useEffect } from 'react';
+import { setAPI_KEY, setCampaigns } from '../Redux/actions';
+import { Link } from 'react-router-dom';
+import { auth, database } from '../utils/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import landscape from '../landscape.jpeg'
-
+import landscape from '../assets/landscape.jpeg';
+import { doc, getDoc } from 'firebase/firestore';
 
 function Homepage() {
+    interface UserData {
+        email?: string;
+        firstName?: string;
+        lastName?: string;
+        age?: number;
+        bio?: string;
+        address?: string;
+        API_KEY?: string;
+    }
+
     const dispatch = useDispatch();
     const key: string = useSelector((state: RootState) => state.key);
     const url: string = useSelector((state: RootState) => state.baseURL);
     const campaigns: unknown[] = useSelector((state: RootState) => state.campaigns) || [];
     const placeholderImage: string = useSelector((state: RootState) => state.placeholderImage);
     const [user, loading] = useAuthState(auth);
-    
-    console.log(key);
+    const [userData, setUserData] = useState<UserData | null>(null);
+
+    const getFireBaseData = async (email: string) => {
+        try {
+            const userDocRef = doc(database, 'usersInfo', `${email}`);
+            const userDocSnap = await getDoc(userDocRef);
+
+            if (userDocSnap.exists()) {
+                const logData = userDocSnap.data();
+                setUserData(logData);
+                dispatch(setAPI_KEY(logData?.API_KEY || '')); // Dispatch the action here
+            } else {
+                console.log('No such document!');
+            }
+        } catch (error) {
+            console.error('Error getting document:', error);
+        }
+    };    
 
     useEffect(() => {
-        getData()
-    }, [])
+        getFireBaseData(user?.email || '');
+    }, [user]); // Run the effect whenever the `user` changes
+
+    useEffect(() => {
+        getData();
+    }, [userData]); // Run the effect whenever `userData` changes
 
     const getData = () => {
         fetch(`${url}/campaigns`, {
             headers: {
-                'Authorization': 'Bearer ' + key,
-                'Content-type': 'application/json'
-            }
+                Authorization: 'Bearer ' + key,
+                'Content-type': 'application/json',
+            },
         })
-            .then(res => res.json())
-            .then(data => {
-                dispatch(setCampaigns(data.data))
-            })
-    }
-
-
+            .then((res) => res.json())
+            .then((data) => {
+                dispatch(setCampaigns(data.data));
+            });
+    };
 
     const divStyle: React.CSSProperties = {
         backgroundImage: `url(${landscape})`,
@@ -87,17 +115,25 @@ function Homepage() {
 
             {!user && (
                 <div style={outerDivStyle}>
-                    <div className='w-4/5 mx-auto' style={{ height: '84vh' }}>
-                        <div className='h-3/5 flex flex-col items-center justify-end' style={divStyle}>
-                            <div className='h-3/4 flex items-center justify-center w-full text-center'>
-                            <span className=" font-semibold text-xl tracking-tight w-full py-8 bg-white/70">Kanka<span className='text-blue-500'>.Log</span></span>
+                    <div className="w-4/5 mx-auto" style={{ height: '84vh' }}>
+                        <div className="h-3/5 flex flex-col items-center justify-end" style={divStyle}>
+                            <div className="h-3/4 flex items-center justify-center w-full text-center">
+                                <span className=" font-semibold text-xl tracking-tight w-full py-8 bg-white/70">
+                                    Kanka<span className="text-blue-500">.Log</span>
+                                </span>
                             </div>
-                            <Link to='/Signup' className="animate-bounce hover:animate-none text-white bg-blue-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-l px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 mb-4">
+                            <Link
+                                to="/Signup"
+                                className="animate-bounce hover:animate-none text-white bg-blue-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-l px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 mb-4"
+                            >
                                 Sign Up
                             </Link>
                         </div>
-                        <div className='h-2/5 flex justify-center items-start'>
-                            <Link to='/Login' className=" text-white bg-blue-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-l px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 mt-4">
+                        <div className="h-2/5 flex justify-center items-start">
+                            <Link
+                                to="/Login"
+                                className=" text-white bg-blue-500 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-l px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800 mt-4"
+                            >
                                 Login
                             </Link>
                         </div>
@@ -108,4 +144,4 @@ function Homepage() {
     );
 }
 
-export default Homepage
+export default Homepage;

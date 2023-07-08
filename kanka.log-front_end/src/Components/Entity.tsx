@@ -118,7 +118,7 @@ const Entity: React.FC = () => {
     const addLogToCollection = () => {
         if (user) {
             const dataRef = doc(database, 'usersInfo', `${user.email}`, 'Logs', `${(entity as any).name}`, `${new Date()}`,'data');
-            
+
             const data = {
                 entity_id: entity_id,
                 entity_name: entityToUpload.name,
@@ -257,7 +257,7 @@ const Entity: React.FC = () => {
                                     <textarea
                                         id="entry"
                                         rows={4}
-                                        className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-white-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                        className="block p-2.5 w-full h-80 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-white-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                         value={cleanHtml(entityToUpload.entry) || ''}
                                         placeholder="Write something about the entity"
                                         onChange={handleEntryChange}
