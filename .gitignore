@@ -1,0 +1,30 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/kanka.log-front_end/node_modules
+/kanka.log-front_end/.pnp
+/kanka.log-front_end/.pnp.js
+
+# testing
+/kanka.log-front_end/coverage
+
+# production
+/kanka.log-front_end/build
+
+# misc
+/kanka.log-front_end/.DS_Store
+/kanka.log-front_end/.env.local
+/kanka.log-front_end/.env.development.local
+/kanka.log-front_end/.env.test.local
+/kanka.log-front_end/.env.production.local
+
+/kanka.log-front_end/npm-debug.log*
+/kanka.log-front_end/yarn-debug.log*
+/kanka.log-front_end/yarn-error.log*
+
+/kanka.log-front_end/.env
+/kanka.log-front_end/package-lock.json
+
+/node_modules
+.env
+package-lock.json

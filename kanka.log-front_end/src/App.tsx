@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
-import { Routes, Route } from 'react-router-dom';
-import Navbar from './Components/Navbar';
-import Signup from './Components/Signup';
-import SetApiKey from './Components/SetApiKey';
-import Login from './Components/Login';
-import Profile from './Components/Profile';
-import ResetPassword from './Components/ResetPassword';
-import Homepage from './Components/Homepage';
-import Campaign from './Components/Campaign';
-import Category from './Components/Category'
-import Entity from './Components/Entity';
-import Footer from './Components/Footer';
+// import { Routes, Route } from 'react-router-dom';
+// import Navbar from './Components/Navbar';
+// import Signup from './Components/Signup';
+// import SetApiKey from './Components/SetApiKey';
+// import Login from './Components/Login';
+// import Profile from './Components/Profile';
+// import ResetPassword from './Components/ResetPassword';
+// import Homepage from './Components/Homepage';
+// import Campaign from './Components/Campaign';
+// import Category from './Components/Category'
+// import Entity from './Components/Entity';
+// import Footer from './Components/Footer';
 import { auth, database } from './utils/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -79,7 +79,8 @@ function App() {
   return (
     <>
       <div className="bg-gray-50 dark:bg-gray-900">
-        <Navbar />
+        <h1>hello</h1>
+        {/* <Navbar />
         <Routes>
           <Route path="/" element={<Homepage />} />
           <Route path="/:campaignId" element={<Campaign />} />
@@ -92,7 +93,7 @@ function App() {
           <Route path='/ResetPassword' element={<ResetPassword />} />
         </Routes>
         <br /><br /><br />
-        <Footer />
+        <Footer /> */}
       </div>
     </>
   );
