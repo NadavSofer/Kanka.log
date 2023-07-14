@@ -79,7 +79,6 @@ function App() {
   return (
     <>
       <div className="bg-gray-50 dark:bg-gray-900">
-        <h1>hello</h1>
         <Navbar />
         <Routes>
           <Route path="/" element={<Homepage />} />
